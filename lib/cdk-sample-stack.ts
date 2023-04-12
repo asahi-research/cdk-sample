@@ -1,16 +1,39 @@
-import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { Construct } from "constructs";
+import {
+  Stack,
+  StackProps,
+  aws_ec2 as ec2,
+} from "aws-cdk-lib";
+import { Config } from "../sample-config/types";
 
-export class CdkSampleStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+interface SampleStackProps extends StackProps {
+  config: Config;
+}
+
+export class SampleStack extends Stack {
+  constructor(scope: Construct, id: string, props: SampleStackProps) {
     super(scope, id, props);
+    const sampleConfig = props.config.sample;
 
-    // The code that defines your stack goes here
+    const my_vpc = new ec2.Vpc(this, `${sampleConfig.envName}-vpc}`, {
+      ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/24"),
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
+      natGateways: 1,
+      maxAzs: 1,
+      subnetConfiguration: [
+        { name: "Private", subnetType: ec2.SubnetType.PUBLIC, cidrMask: 28 },
+      ],
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'CdkSampleQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const my_ec2 = new ec2.Instance(this, `${sampleConfig.envName}-ec2`, {
+      vpc: my_vpc,
+      instanceName: `${sampleConfig.envName}-ec2`,
+      machineImage: ec2.MachineImage.latestAmazonLinux(),
+      instanceType: ec2.InstanceType.of(
+          sampleConfig.instanceClass,
+          sampleConfig.instanceSize,
+      )
+    })
   }
 }
