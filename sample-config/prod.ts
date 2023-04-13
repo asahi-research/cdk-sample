@@ -5,7 +5,7 @@ import { Config} from "./types";
 export const sampleConfig:Config["sample"] = {
     envName: 'prod',
     instanceSize: InstanceSize.MEDIUM,
-    instanceClass: InstanceClass.BURSTABLE4_GRAVITON
+    instanceClass: InstanceClass.BURSTABLE3
 }
 
 export const config: Config = {
